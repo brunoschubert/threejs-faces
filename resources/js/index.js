@@ -20,7 +20,31 @@ function main() {
   controls.update();
 
   const scene = new THREE.Scene();
-  scene.background = new THREE.Color('black');
+  scene.background = new THREE.Color('grey');
+
+  const raycaster = new THREE.Raycaster();
+  const mouse = new THREE.Vector2();
+
+  window.addEventListener( 'click', onClick, false );
+
+  function onClick( event ) {
+
+    event.preventDefault();
+
+    mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
+    mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
+
+    raycaster.setFromCamera( mouse, camera );
+    var intersections = raycaster.intersectObjects(scene.children, true);
+
+    if ( intersections.length > 0 ) {
+      var dotGeometry = new THREE.Geometry();
+      dotGeometry.vertices.push(new THREE.Vector3(intersections[0].point.x, intersections[0].point.y,  intersections[0].point.z));
+      var dotMaterial = new THREE.PointsMaterial( { size: 5, sizeAttenuation: false, color: 0xFF00FF} );
+      var dot = new THREE.Points( dotGeometry, dotMaterial );
+      scene.add( dot );
+    }
+  }
 
   {
     const skyColor = 0xB1E1FF;  // light blue
@@ -31,7 +55,7 @@ function main() {
   }
 
   {
-    const color = 0xFFFFFF;
+    const color = 0xFEFEFE;
     const intensity = 1;
     const light = new THREE.DirectionalLight(color, intensity);
     light.position.set(5, 10, 2);
@@ -51,7 +75,6 @@ function main() {
       });
     });
   }
-
 
   function resizeRendererToDisplaySize(renderer) {
     const canvas = renderer.domElement;
